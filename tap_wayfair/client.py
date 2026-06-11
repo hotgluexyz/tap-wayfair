@@ -55,7 +55,7 @@ class WayfairStream(GraphQLStream):
             else:
                 params["fromDate"] = next_page_token
         elif self.replication_key:
-            start_date = self.get_starting_time(context, is_inclusive=True)
+            start_date = self.get_starting_time(context, is_inclusive=False)
             if start_date:
                 params["fromDate"] = self._format_from_date(start_date)
 
@@ -118,7 +118,7 @@ class WayfairStream(GraphQLStream):
             raise FatalAPIError(f"Wayfair GraphQL error: {msg}")
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
-        """Yield order records, skipping the duplicate row at inclusive fromDate boundaries."""
+        """Yield order records, skipping the pagination overlap at inclusive fromDate boundaries."""
         for record in extract_jsonpath(self.records_jsonpath, input=response.json()):
             if (
                 self._pagination_skip_po_number
