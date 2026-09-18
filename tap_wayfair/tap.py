@@ -5,11 +5,17 @@ from typing import List
 from hotglue_singer_sdk import Stream, Tap
 from hotglue_singer_sdk import typing as th
 
-from tap_wayfair.client import DEFAULT_GRAPHQL_URL
-from tap_wayfair.streams import OrdersStream
+from tap_wayfair.client import DEFAULT_CATALOG_API_BASE, DEFAULT_GRAPHQL_URL
+from tap_wayfair.streams import (
+    OrdersStream,
+    TaxonomyAttributesStream,
+    TaxonomyCategoriesStream,
+)
 
 STREAM_TYPES = [
     OrdersStream,
+    TaxonomyCategoriesStream,
+    TaxonomyAttributesStream,
 ]
 
 
@@ -25,10 +31,26 @@ class TapWayfair(Tap):
             "api_url",
             th.StringType,
             description=(
-                "Wayfair Dropship Orders GraphQL endpoint. "
-                f"Defaults to production ({DEFAULT_GRAPHQL_URL}). "
-                "Use https://sandbox.api.wayfair.com/v1/graphql for sandbox credentials."
+                "Wayfair API URL. Orders use the full GraphQL endpoint "
+                f"(default: {DEFAULT_GRAPHQL_URL}). "
+                "Product catalog streams use this as the API base URL "
+                f"(default: {DEFAULT_CATALOG_API_BASE}) with the stream path appended."
             ),
+        ),
+        th.Property(
+            "brand",
+            th.StringType,
+            description="Market context brand for taxonomy streams.",
+        ),
+        th.Property(
+            "country",
+            th.StringType,
+            description="Market context country for taxonomy streams.",
+        ),
+        th.Property(
+            "locale",
+            th.StringType,
+            description="Market context locale for taxonomy streams.",
         ),
         th.Property(
             "start_date",

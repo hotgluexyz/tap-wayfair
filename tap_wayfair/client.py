@@ -13,6 +13,13 @@ from memoization import cached
 from tap_wayfair.auth import WayfairAuthenticator
 
 DEFAULT_GRAPHQL_URL = "https://api.wayfair.com/v1/graphql"
+DEFAULT_CATALOG_API_BASE = "https://api.wayfair.io"
+CATALOG_GRAPHQL_PATH = "/v1/product-catalog-api/graphql"
+DEFAULT_MARKET_CONTEXT = {
+    "brand": "WAYFAIR",
+    "country": "UNITED_STATES",
+    "locale": "en-US",
+}
 DATETIME_FIELDS = (
     "poDate",
     "estimatedShipDate",

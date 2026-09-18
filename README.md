@@ -1,6 +1,6 @@
 # tap-wayfair
 
-`tap-wayfair` is a Singer tap for [Wayfair](https://www.wayfair.com/), extracting dropship purchase orders from the Wayfair Orders GraphQL API.
+`tap-wayfair` is a Singer tap for [Wayfair](https://www.wayfair.com/), extracting dropship purchase orders and product-catalog taxonomy data from Wayfair GraphQL APIs.
 
 Built with the [Hotglue Singer SDK](https://github.com/hotgluexyz/HotglueSingerSDK) for Singer Taps.
 
@@ -20,12 +20,15 @@ pip install git+https://github.com/hotgluexyz/tap-wayfair.git
 
 ### Accepted Config Options
 
-| Setting         | Required | Description                                                                 |
-|-----------------|----------|-----------------------------------------------------------------------------|
-| `client_id`     | Yes      | Wayfair OAuth2 client ID                                                    |
-| `client_secret` | Yes      | Wayfair OAuth2 client secret                                                |
-| `api_url`       | No       | GraphQL endpoint (default: `https://api.wayfair.com/v1/graphql`)            |
-| `start_date`    | No       | Earliest order `poDate` to sync (ISO 8601 / datetime format)                |
+| Setting                    | Required | Description                                                                 |
+|----------------------------|----------|-----------------------------------------------------------------------------|
+| `client_id`                | Yes      | Wayfair OAuth2 client ID                                                    |
+| `client_secret`            | Yes      | Wayfair OAuth2 client secret                                                |
+| `api_url`                  | No       | Orders: full GraphQL endpoint (default: `https://api.wayfair.com/v1/graphql`). Catalog: API base URL (default: `https://api.wayfair.io`) |
+| `brand`                    | No       | Market context brand for taxonomy streams (default: `WAYFAIR`)              |
+| `country`                  | No       | Market context country for taxonomy streams (default: `UNITED_STATES`)      |
+| `locale`                   | No       | Market context locale for taxonomy streams (default: `en-US`)               |
+| `start_date`               | No       | Earliest order `poDate` to sync (ISO 8601 / datetime format)                |
 
 Example `config.json`:
 
@@ -34,11 +37,16 @@ Example `config.json`:
   "client_id": "your_client_id",
   "client_secret": "your_client_secret",
   "api_url": "https://api.wayfair.com/v1/graphql",
+  "brand": "WAYFAIR",
+  "country": "UNITED_STATES",
+  "locale": "en-US",
   "start_date": "2024-01-01T00:00:00Z"
 }
 ```
 
-For sandbox credentials, set `api_url` to `https://sandbox.api.wayfair.com/v1/graphql`.
+For sandbox credentials:
+- Orders: set `api_url` to `https://sandbox.api.wayfair.com/v1/graphql`
+- Product Catalog: set `api_url` to `https://api.wayfair.io/sandbox`
 
 A full list of supported settings and capabilities for this tap is available by running:
 
@@ -56,13 +64,15 @@ environment variable is set either in the terminal context or in the `.env` file
 
 This tap uses OAuth2 client credentials against `https://sso.auth.wayfair.com/oauth/token`.
 Register an application in the [Wayfair Developer Portal](https://developer.wayfair.io/) to obtain
-a client ID and client secret with Dropship Orders API access.
+a client ID and client secret with access to the Orders and/or Product Catalog APIs.
 
 ## Supported Streams
 
-| Stream   | Replication Key | Primary Key | Description                                      |
-|----------|-----------------|-------------|--------------------------------------------------|
-| `orders` | `poDate`        | `id`        | Dropship purchase orders (`getDropshipPurchaseOrders`) |
+| Stream                 | Replication Key | Primary Key                                      | Description |
+|------------------------|-----------------|--------------------------------------------------|-------------|
+| `orders`               | `poDate`        | `id`                                             | Dropship purchase orders (`getDropshipPurchaseOrders`) |
+| `taxonomy_categories`  | —               | `taxonomyCategoryId`                             | Product catalog taxonomy categories |
+| `taxonomy_attributes`  | —               | `taxonomyCategoryId`, `taxonomyAttributeId`      | Taxonomy attributes per category (one attribute per record, including nested child attributes) |
 
 ## Usage
 
