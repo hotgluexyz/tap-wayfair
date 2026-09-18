@@ -347,7 +347,7 @@ class ProductCatalogStream(WayfairStream):
 
     @property
     def url_base(self) -> str:
-        return self.config.get("api_url", DEFAULT_CATALOG_API_BASE).rstrip("/")
+        return self.config.get("catalog_api_url", DEFAULT_CATALOG_API_BASE).rstrip("/")
 
     @property
     def market_context(self) -> Dict[str, str]:

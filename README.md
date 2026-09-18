@@ -24,7 +24,8 @@ pip install git+https://github.com/hotgluexyz/tap-wayfair.git
 |----------------------------|----------|-----------------------------------------------------------------------------|
 | `client_id`                | Yes      | Wayfair OAuth2 client ID                                                    |
 | `client_secret`            | Yes      | Wayfair OAuth2 client secret                                                |
-| `api_url`                  | No       | Orders: full GraphQL endpoint (default: `https://api.wayfair.com/v1/graphql`). Catalog: API base URL (default: `https://api.wayfair.io`) |
+| `api_url`                  | No       | Orders GraphQL endpoint (default: `https://api.wayfair.com/v1/graphql`) |
+| `catalog_api_url`          | No       | Product catalog API base URL; catalog GraphQL path is appended (default: `https://api.wayfair.io`) |
 | `brand`                    | No       | Market context brand for taxonomy streams (default: `WAYFAIR`)              |
 | `country`                  | No       | Market context country for taxonomy streams (default: `UNITED_STATES`)      |
 | `locale`                   | No       | Market context locale for taxonomy streams (default: `en-US`)               |
@@ -37,6 +38,7 @@ Example `config.json`:
   "client_id": "your_client_id",
   "client_secret": "your_client_secret",
   "api_url": "https://api.wayfair.com/v1/graphql",
+  "catalog_api_url": "https://api.wayfair.io",
   "brand": "WAYFAIR",
   "country": "UNITED_STATES",
   "locale": "en-US",
@@ -46,7 +48,7 @@ Example `config.json`:
 
 For sandbox credentials:
 - Orders: set `api_url` to `https://sandbox.api.wayfair.com/v1/graphql`
-- Product Catalog: set `api_url` to `https://api.wayfair.io/sandbox`
+- Product Catalog: set `catalog_api_url` to `https://api.wayfair.io/sandbox`
 
 A full list of supported settings and capabilities for this tap is available by running:
 

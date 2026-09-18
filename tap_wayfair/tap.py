@@ -31,10 +31,16 @@ class TapWayfair(Tap):
             "api_url",
             th.StringType,
             description=(
-                "Wayfair API URL. Orders use the full GraphQL endpoint "
-                f"(default: {DEFAULT_GRAPHQL_URL}). "
-                "Product catalog streams use this as the API base URL "
-                f"(default: {DEFAULT_CATALOG_API_BASE}) with the stream path appended."
+                "Orders GraphQL endpoint URL "
+                f"(default: {DEFAULT_GRAPHQL_URL})."
+            ),
+        ),
+        th.Property(
+            "catalog_api_url",
+            th.StringType,
+            description=(
+                "Product catalog API base URL; the catalog GraphQL path is appended "
+                f"(default: {DEFAULT_CATALOG_API_BASE})."
             ),
         ),
         th.Property(
