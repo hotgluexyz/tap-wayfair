@@ -234,25 +234,6 @@ query GetTaxonomyAttributesByFilter($input: AttributesFilterInput!) {
         definition
       }
       parentAttributeId
-      childAttributes {
-        taxonomyAttributeId
-        title
-        description
-        requirement
-        valueFormat {
-          canValueBeCustomized
-          canValueBeSetToUnavailable
-          canValueBeSetToNotApplicable
-          datatype
-        }
-        parentAttributeId
-        possibleAttributeValues {
-          value
-          definition
-        }
-        relatedAttributeIds
-        classIds
-      }
       relatedAttributeIds
       classIds
     }
@@ -417,7 +398,7 @@ class TaxonomyCategoriesStream(ProductCatalogStream):
 
 
 class TaxonomyAttributesStream(ProductCatalogStream):
-    """Taxonomy attributes flattened one attribute per record."""
+    """Taxonomy attributes, one record per attribute returned by the catalog API."""
 
     name = "taxonomy_attributes"
     primary_keys = ["taxonomyCategoryId", "taxonomyAttributeId"]
@@ -460,7 +441,11 @@ class TaxonomyAttributesStream(ProductCatalogStream):
         }
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
-        """Yield one record per attribute, flattening nested child attributes."""
+        """Yield one record per top-level attribute.
+
+        Child attributes are already returned in ``attributes`` with
+        ``parentAttributeId`` set, so they are not requested separately.
+        """
         for result in (response.json().get("data") or {}).get("attributesByFilter") or []:
             category_id = str(result.get("classId"))
             rules = {
@@ -468,10 +453,9 @@ class TaxonomyAttributesStream(ProductCatalogStream):
                 for rule in result.get("conditionalityRules") or []
             }
             for attribute in result.get("attributes") or []:
-                for item in [attribute, *(attribute.get("childAttributes") or [])]:
-                    record = {k: v for k, v in item.items() if k != "childAttributes"}
-                    record["taxonomyCategoryId"] = category_id
-                    record["conditionalityRules"] = rules.get(
-                        item.get("taxonomyAttributeId"), []
-                    )
-                    yield record
+                record = dict(attribute)
+                record["taxonomyCategoryId"] = category_id
+                record["conditionalityRules"] = rules.get(
+                    attribute.get("taxonomyAttributeId"), []
+                )
+                yield record
