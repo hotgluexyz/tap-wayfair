@@ -24,12 +24,18 @@ pip install git+https://github.com/hotgluexyz/tap-wayfair.git
 |----------------------------|----------|-----------------------------------------------------------------------------|
 | `client_id`                | Yes      | Wayfair OAuth2 client ID                                                    |
 | `client_secret`            | Yes      | Wayfair OAuth2 client secret                                                |
-| `api_url`                  | No       | Orders GraphQL endpoint (default: `https://api.wayfair.com/v1/graphql`) |
-| `catalog_api_url`          | No       | Product catalog API base URL; catalog GraphQL path is appended (default: `https://api.wayfair.io`) |
+| `api_url`                  | No       | Orders GraphQL endpoint (overrides `is_sandbox`; default production or sandbox URL from `is_sandbox`) |
+| `catalog_api_url`          | No       | Product catalog API base URL; path is appended (overrides `is_sandbox`) |
 | `brand`                    | No       | Market context brand for taxonomy streams (default: `WAYFAIR`)              |
 | `country`                  | No       | Market context country for taxonomy streams (default: `UNITED_STATES`)      |
 | `locale`                   | No       | Market context locale for taxonomy streams (default: `en-US`)               |
 | `start_date`               | No       | Earliest order `poDate` to sync (ISO 8601 / datetime format)                |
+| `is_sandbox`               | No       | When `true`, orders use `https://sandbox.api.wayfair.com/v1/graphql` and catalog uses `https://api.wayfair.io/sandbox` unless URLs are overridden |
+| `access_token`             | No       | Set by hotglue after Developer Portal OAuth (do not set manually)           |
+| `refresh_token`            | No       | Set by hotglue after Developer Portal OAuth                                 |
+| `expires_in`               | No       | Token TTL or Unix expiry from hotglue / after refresh                       |
+
+**Client credentials** (manual or internal sandbox app):
 
 Example `config.json`:
 
@@ -46,9 +52,20 @@ Example `config.json`:
 }
 ```
 
-For sandbox credentials:
-- Orders: set `api_url` to `https://sandbox.api.wayfair.com/v1/graphql`
-- Product Catalog: set `catalog_api_url` to `https://api.wayfair.io/sandbox`
+For sandbox credentials, set `is_sandbox` to `true` (or override `api_url` / `catalog_api_url` explicitly).
+
+**Developer Portal OAuth** (hotglue connect; includes `refresh_token`):
+
+```json
+{
+  "client_id": "vendor-…",
+  "client_secret": "…",
+  "is_sandbox": true,
+  "access_token": "…",
+  "refresh_token": "…",
+  "expires_in": 3600
+}
+```
 
 A full list of supported settings and capabilities for this tap is available by running:
 
@@ -64,9 +81,16 @@ environment variable is set either in the terminal context or in the `.env` file
 
 ### Source Authentication and Authorization
 
-This tap uses OAuth2 client credentials against `https://sso.auth.wayfair.com/oauth/token`.
-Register an application in the [Wayfair Developer Portal](https://developer.wayfair.io/) to obtain
-a client ID and client secret with access to the Orders and/or Product Catalog APIs.
+Wayfair supports two OAuth 2.0 flows. The tap picks the flow from config:
+
+| Config | Flow | Token endpoint |
+|--------|------|----------------|
+| No `refresh_token` | [Client credentials](https://developer.wayfair.io/posts/api-access-tokens) | `https://sso.auth.wayfair.com/oauth/token` (JSON body) |
+| `refresh_token` present | Developer Portal authorization code (hotglue UI) | `https://partners.wayfair.com/auth/realms/Developer_Portal/protocol/openid-connect/token` (form body, refresh grant) |
+
+Tokens are refreshed automatically when they are close to expiry. With `TapWayfair.access_token_support`, jobs can also refresh via the hotglue accesstoken API before calling Wayfair locally.
+
+Register an application in the [Wayfair Developer Portal](https://developer.wayfair.io/) to obtain credentials with access to the Orders and/or Product Catalog APIs.
 
 ## Supported Streams
 

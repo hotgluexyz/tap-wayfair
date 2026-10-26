@@ -9,9 +9,9 @@ from hotglue_singer_sdk.helpers.jsonpath import extract_jsonpath
 
 from tap_wayfair.client import (
     CATALOG_GRAPHQL_PATH,
-    DEFAULT_CATALOG_API_BASE,
     DEFAULT_MARKET_CONTEXT,
     WayfairStream,
+    catalog_api_base,
 )
 
 ADDRESS_SCHEMA = th.ObjectType(
@@ -328,7 +328,7 @@ class ProductCatalogStream(WayfairStream):
 
     @property
     def url_base(self) -> str:
-        return self.config.get("catalog_api_url", DEFAULT_CATALOG_API_BASE).rstrip("/")
+        return catalog_api_base(dict(self.config))
 
     @property
     def market_context(self) -> Dict[str, str]:

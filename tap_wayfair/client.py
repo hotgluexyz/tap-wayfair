@@ -13,8 +13,33 @@ from memoization import cached
 from tap_wayfair.auth import WayfairAuthenticator
 
 DEFAULT_GRAPHQL_URL = "https://api.wayfair.com/v1/graphql"
+SANDBOX_GRAPHQL_URL = "https://sandbox.api.wayfair.com/v1/graphql"
+
 DEFAULT_CATALOG_API_BASE = "https://api.wayfair.io"
+SANDBOX_CATALOG_API_BASE = "https://api.wayfair.io/sandbox"
 CATALOG_GRAPHQL_PATH = "/v1/product-catalog-api/graphql"
+
+
+def orders_graphql_url(config: dict) -> str:
+    """Resolve orders GraphQL URL (explicit api_url, sandbox default, or production)."""
+    explicit = config.get("api_url")
+    if explicit:
+        return str(explicit).rstrip("/")
+    if config.get("is_sandbox"):
+        return SANDBOX_GRAPHQL_URL
+    return DEFAULT_GRAPHQL_URL
+
+
+def catalog_api_base(config: dict) -> str:
+    """Resolve product catalog API base (explicit catalog_api_url, sandbox, or production)."""
+    explicit = config.get("catalog_api_url")
+    if explicit:
+        return str(explicit).rstrip("/")
+    if config.get("is_sandbox"):
+        return SANDBOX_CATALOG_API_BASE
+    return DEFAULT_CATALOG_API_BASE
+
+
 DEFAULT_MARKET_CONTEXT = {
     "brand": "WAYFAIR",
     "country": "UNITED_STATES",
@@ -41,7 +66,7 @@ class WayfairStream(GraphQLStream):
     @property
     def url_base(self) -> str:
         """Return the configured GraphQL endpoint URL."""
-        return self.config.get("api_url", DEFAULT_GRAPHQL_URL)
+        return orders_graphql_url(dict(self.config))
 
     @property
     @cached
