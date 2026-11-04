@@ -88,7 +88,7 @@ Wayfair supports two OAuth 2.0 flows. The tap picks the flow from config:
 | No `refresh_token` | [Client credentials](https://developer.wayfair.io/posts/api-access-tokens) | `https://sso.auth.wayfair.com/oauth/token` (JSON body) |
 | `refresh_token` present | Developer Portal authorization code (hotglue UI) | `https://partners.wayfair.com/auth/realms/Developer_Portal/protocol/openid-connect/token` (form body, refresh grant) |
 
-Tokens are refreshed automatically when they are close to expiry. With `TapWayfair.access_token_support`, jobs can also refresh via the hotglue accesstoken API before calling Wayfair locally.
+Tokens are refreshed automatically via local Wayfair OAuth when they are close to expiry.
 
 Register an application in the [Wayfair Developer Portal](https://developer.wayfair.io/) to obtain credentials with access to the Orders and/or Product Catalog APIs.
 

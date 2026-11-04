@@ -112,17 +112,8 @@ class WayfairAuthenticator(OAuthAuthenticator, metaclass=SingletonMeta):
         return absolute
 
     def update_access_token(self) -> None:
-        """Refresh via Hotglue accesstoken API when configured, else local OAuth."""
-        try:
-            super().update_access_token()
-        except RuntimeError as ex:
-            if "Missing required env vars for Hotglue access token" not in str(ex):
-                raise
-            self.logger.warning(
-                "Hotglue accesstoken API not configured; falling back to local "
-                "Wayfair OAuth refresh."
-            )
-            self.update_access_token_locally()
+        """Refresh via local Wayfair OAuth (Hotglue accesstoken API is not supported)."""
+        self.update_access_token_locally()
 
     def update_access_token_locally(self) -> None:
         """POST to Wayfair token URL; portal uses form body, M2M uses JSON."""

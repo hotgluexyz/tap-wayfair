@@ -1,12 +1,10 @@
 """Wayfair tap class."""
 
-from typing import Any, List, Optional, Tuple, Type
+from typing import List
 
 from hotglue_singer_sdk import Stream, Tap
 from hotglue_singer_sdk import typing as th
-from hotglue_singer_sdk.authenticators import OAuthAuthenticator
 
-from tap_wayfair.auth import CLIENT_CREDENTIALS_TOKEN_URL, WayfairAuthenticator
 from tap_wayfair.client import (
     DEFAULT_CATALOG_API_BASE,
     DEFAULT_GRAPHQL_URL,
@@ -95,13 +93,6 @@ class TapWayfair(Tap):
             ),
         ),
     ).to_dict()
-
-    @classmethod
-    def access_token_support(
-        cls, _connector: Optional[Any] = None
-    ) -> Tuple[Type[OAuthAuthenticator], str]:
-        """Enable Hotglue ``--access-token`` and job accesstoken API refresh."""
-        return WayfairAuthenticator, CLIENT_CREDENTIALS_TOKEN_URL
 
     def discover_streams(self) -> List[Stream]:
         """Return the list of streams supported by this tap."""
